@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador Nómina</title>
+</head>
+<body>
+
+  <h2>Simulador de Nómina</h2>
+
+  <input type="number" id="edad" placeholder="Edad"><br><br>
+
+  <input type="number" id="salario" placeholder="Salario"><br><br>
+  <input type="number" id="comisiones" placeholder="Comisiones"><br><br>
+  <input type="number" id="horasExtra" placeholder="Horas Extra"><br><br>
+
+  <select id="riesgo">
+    <option value="minimo">Mínimo</option>
+    <option value="bajo">Bajo</option>
+    <option value="medio">Medio</option>
+    <option value="alto">Alto</option>
+    <option value="maximo">Máximo</option>
+  </select><br><br>
+
+  <button onclick="calcular()">Calcular</button>
+
+  <h3 id="resultado"></h3>
+
+  <script>
+    function calcular() {
+      let edad = Number(document.getElementById("edad").value);
+
+      let estado = validarUsuario(edad);
+
+      if (!estado.valido) {
+        document.getElementById("resultado").innerText = estado.mensaje;
+        return;
+      }
+
+      let salario = Number(document.getElementById("salario").value);
+      let comisiones = Number(document.getElementById("comisiones").value);
+      let horasExtra = Number(document.getElementById("horasExtra").value);
+      let riesgo = document.getElementById("riesgo").value;
+
+      let resultado = calcularNomina({
+        salario,
+        comisiones,
+        horasExtra,
+        riesgo
+      });
+
+      document.getElementById("resultado").innerText =
+        "Total a pagar: $" + resultado.total.toLocaleString();
+    }
+  </script>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
