@@ -1,123 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Simulador Nómina</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 30px; }
-    h2 { margin-bottom: 20px; }
-    input, select { padding: 8px; margin: 5px 0 10px; width: 100%; border: 1px solid #ccc; border-radius: 6px; }
-    button { padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
-    button:hover { background: #0c5dc4; }
-    #resultado { margin-top: 20px; background: white; padding: 20px; border-radius: 10px; display: none; }
-    #resultado p { margin: 5px 0; }
-    #resultado .neto { font-size: 20px; font-weight: bold; color: green; margin-top: 10px; }
-    #error { color: red; margin-top: 10px; display: none; }
-  </style>
+
+    <meta charset="UTF-8">
+
+    <title>Simulador Nómina</title>
+
 </head>
+
 <body>
 
-  <h2>Simulador de Nómina</h2>
+    <form>
 
-  <label>Edad</label>
-  <input type="number" id="edad" placeholder="Ej: 28"><br>
+        <fieldset>
 
-  <label>Salario base</label>
-  <input type="number" id="salario" placeholder="Ej: 3000000"><br>
+            <legend>Simulador de Nómina</legend>
 
-  <label>Comisiones</label>
-  <input type="number" id="comisiones" placeholder="Ej: 500000"><br>
+            <label for="nombre">
+                Nombre:
+            </label>
 
-  <label>Horas extra</label>
-  <input type="number" id="horasExtra" placeholder="Ej: 200000"><br>
+            <input
+                type="text"
+                id="nombre"
+            >
 
-  <label>Nivel de riesgo ARL</label>
-  <select id="riesgo">
-    <option value="0.00522">I - Mínimo</option>
-    <option value="0.01044">II - Bajo</option>
-    <option value="0.02436" selected>III - Medio</option>
-    <option value="0.0435">IV - Alto</option>
-    <option value="0.0696">V - Máximo</option>
-  </select><br>
+            <br><br>
 
-  <button onclick="calcular()">Calcular</button>
+            <label for="edad">
+                Edad:
+            </label>
 
-  <p id="error"></p>
+            <input
+                type="number"
+                id="edad"
+                min="0"
+                max="140"
+            >
 
-  <div id="resultado">
-    <p>Devengado: <span id="rDevengado"></span></p>
-    <p>Auxilio transporte: <span id="rAuxilio"></span></p>
-    <p>IBC (70%): <span id="rIbc"></span></p>
-    <hr>
-    <p>Salud (4%): <span id="rSalud"></span></p>
-    <p>Pensión (4%): <span id="rPension"></span></p>
-    <p>Fondo solidaridad: <span id="rFondo"></span></p>
-    <p>ARL: <span id="rArl"></span></p>
-    <p>Retención en la fuente: <span id="rRetencion"></span></p>
-    <hr>
-    <p class="neto">Neto a pagar: <span id="rTotal"></span></p>
-  </div>
+            <br><br>
 
-  <script>
-    var SMLV = 1750905;
-    var UVT = 52.37;
+            <label for="salario">
+                Salario base:
+            </label>
 
-    function calcular() {
-      var edad = Number(document.getElementById("edad").value);
-      var salario = Number(document.getElementById("salario").value);
-      var comisiones = Number(document.getElementById("comisiones").value);
-      var horasExtra = Number(document.getElementById("horasExtra").value);
-      var riesgo = Number(document.getElementById("riesgo").value);
+            <input
+                type="number"
+                id="salario"
+            >
 
-      var error = document.getElementById("error");
-      var resultado = document.getElementById("resultado");
-      error.style.display = "none";
-      resultado.style.display = "none";
+            <br><br>
 
-      if (edad < 18) { error.innerText = "Menor de edad, no puede continuar."; error.style.display = "block"; return; }
-      if (edad < 25) { error.innerText = "Es beneficiario por cotizante."; error.style.display = "block"; return; }
-      if (!salario) { error.innerText = "Ingresa un salario válido."; error.style.display = "block"; return; }
+            <label for="comisiones">
+                Comisiones:
+            </label>
 
-      var devengado = salario + comisiones + horasExtra;
-      var auxilio = salario <= 2 * SMLV ? 249095 : 0;
-      var ibc = devengado * 0.7;
+            <input
+                type="number"
+                id="comisiones"
+            >
 
-      var salud = 0, pension = 0, fondo = 0, arl = 0, retencion = 0;
+            <br><br>
 
-      if (salario >= 2 * SMLV) {
-        salud = ibc * 0.04;
-        pension = ibc * 0.04;
-        fondo = ibc >= 4 * SMLV ? ibc * 0.01 : 0;
-        arl = ibc * riesgo;
+            <label for="horasExtra">
+                Horas extra:
+            </label>
 
-        var base = ibc - salud - pension - fondo;
-        var uvt = base / UVT;
-        var impuesto = 0;
-        if (uvt > 95 && uvt <= 150) impuesto = (uvt - 95) * 0.19;
-        else if (uvt > 150 && uvt <= 360) impuesto = (uvt - 150) * 0.28 + 10;
-        else if (uvt > 360 && uvt <= 640) impuesto = (uvt - 360) * 0.33 + 69;
-        else if (uvt > 640 && uvt <= 945) impuesto = (uvt - 640) * 0.35 + 162;
-        else if (uvt > 945 && uvt <= 2300) impuesto = (uvt - 945) * 0.37 + 268;
-        else if (uvt > 2300) impuesto = (uvt - 2300) * 0.39 + 770;
-        retencion = impuesto * UVT;
-      }
+            <input
+                type="number"
+                id="horasExtra"
+            >
 
-      var total = devengado + auxilio - salud - pension - fondo - arl - retencion;
-      var p = function(n) { return "$" + Math.round(n).toLocaleString("es-CO"); }
+            <br><br>
 
-      document.getElementById("rDevengado").innerText = p(devengado);
-      document.getElementById("rAuxilio").innerText = p(auxilio);
-      document.getElementById("rIbc").innerText = p(ibc);
-      document.getElementById("rSalud").innerText = p(salud);
-      document.getElementById("rPension").innerText = p(pension);
-      document.getElementById("rFondo").innerText = p(fondo);
-      document.getElementById("rArl").innerText = p(arl);
-      document.getElementById("rRetencion").innerText = p(retencion);
-      document.getElementById("rTotal").innerText = p(total);
+            <label for="riesgo">
+                Nivel de riesgo ARL:
+            </label>
 
-      resultado.style.display = "block";
-    }
-  </script>
+            <select id="riesgo">
+
+                <option value="0.00522">
+                    I - Mínimo
+                </option>
+
+                <option value="0.01044">
+                    II - Bajo
+                </option>
+
+                <option value="0.02436">
+                    III - Medio
+                </option>
+
+                <option value="0.0435">
+                    IV - Alto
+                </option>
+
+                <option value="0.0696">
+                    V - Máximo
+                </option>
+
+            </select>
+
+            <br><br>
+
+            <button onclick="calcular()">
+
+                Calcular
+
+            </button>
+
+        </fieldset>
+
+    </form>
 
 </body>
+
 </html>
