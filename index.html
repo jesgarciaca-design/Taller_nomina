@@ -3,58 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <title>Simulador Nómina</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 30px; }
+    h2 { margin-bottom: 20px; }
+    input, select { padding: 8px; margin: 5px 0 10px; width: 100%; border: 1px solid #ccc; border-radius: 6px; }
+    button { padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
+    button:hover { background: #0c5dc4; }
+    #resultado { margin-top: 20px; background: white; padding: 20px; border-radius: 10px; display: none; }
+    #resultado p { margin: 5px 0; }
+    #resultado .neto { font-size: 20px; font-weight: bold; color: green; margin-top: 10px; }
+    #error { color: red; margin-top: 10px; display: none; }
+  </style>
 </head>
 <body>
 
   <h2>Simulador de Nómina</h2>
 
-  <input type="number" id="edad" placeholder="Edad"><br><br>
+  <label>Edad</label>
+  <input type="number" id="edad" placeholder="Ej: 28"><br>
 
-  <input type="number" id="salario" placeholder="Salario"><br><br>
-  <input type="number" id="comisiones" placeholder="Comisiones"><br><br>
-  <input type="number" id="horasExtra" placeholder="Horas Extra"><br><br>
+  <label>Salario base</label>
+  <input type="number" id="salario" placeholder="Ej: 3000000"><br>
 
+  <label>Comisiones</label>
+  <input type="number" id="comisiones" placeholder="Ej: 500000"><br>
+
+  <label>Horas extra</label>
+  <input type="number" id="horasExtra" placeholder="Ej: 200000"><br>
+
+  <label>Nivel de riesgo ARL</label>
   <select id="riesgo">
-    <option value="minimo">Mínimo</option>
-    <option value="bajo">Bajo</option>
-    <option value="medio">Medio</option>
-    <option value="alto">Alto</option>
-    <option value="maximo">Máximo</option>
-  </select><br><br>
+    <option value="0.00522">I - Mínimo</option>
+    <option value="0.01044">II - Bajo</option>
+    <option value="0.02436" selected>III - Medio</option>
+    <option value="0.0435">IV - Alto</option>
+    <option value="0.0696">V - Máximo</option>
+  </select><br>
 
   <button onclick="calcular()">Calcular</button>
 
-  <h3 id="resultado"></h3>
+  <p id="error"></p>
+
+  <div id="resultado">
+    <p>Devengado: <span id="rDevengado"></span></p>
+    <p>Auxilio transporte: <span id="rAuxilio"></span></p>
+    <p>IBC (70%): <span id="rIbc"></span></p>
+    <hr>
+    <p>Salud (4%): <span id="rSalud"></span></p>
+    <p>Pensión (4%): <span id="rPension"></span></p>
+    <p>Fondo solidaridad: <span id="rFondo"></span></p>
+    <p>ARL: <span id="rArl"></span></p>
+    <p>Retención en la fuente: <span id="rRetencion"></span></p>
+    <hr>
+    <p class="neto">Neto a pagar: <span id="rTotal"></span></p>
+  </div>
 
   <script>
+    var SMLV = 1750905;
+    var UVT = 52.37;
+
     function calcular() {
-      let edad = Number(document.getElementById("edad").value);
+      var edad = Number(document.getElementById("edad").value);
+      var salario = Number(document.getElementById("salario").value);
+      var comisiones = Number(document.getElementById("comisiones").value);
+      var horasExtra = Number(document.getElementById("horasExtra").value);
+      var riesgo = Number(document.getElementById("riesgo").value);
 
-      let estado = validarUsuario(edad);
+      var error = document.getElementById("error");
+      var resultado = document.getElementById("resultado");
+      error.style.display = "none";
+      resultado.style.display = "none";
 
-      if (!estado.valido) {
-        document.getElementById("resultado").innerText = estado.mensaje;
-        return;
+      if (edad < 18) { error.innerText = "Menor de edad, no puede continuar."; error.style.display = "block"; return; }
+      if (edad < 25) { error.innerText = "Es beneficiario por cotizante."; error.style.display = "block"; return; }
+      if (!salario) { error.innerText = "Ingresa un salario válido."; error.style.display = "block"; return; }
+
+      var devengado = salario + comisiones + horasExtra;
+      var auxilio = salario <= 2 * SMLV ? 249095 : 0;
+      var ibc = devengado * 0.7;
+
+      var salud = 0, pension = 0, fondo = 0, arl = 0, retencion = 0;
+
+      if (salario >= 2 * SMLV) {
+        salud = ibc * 0.04;
+        pension = ibc * 0.04;
+        fondo = ibc >= 4 * SMLV ? ibc * 0.01 : 0;
+        arl = ibc * riesgo;
+
+        var base = ibc - salud - pension - fondo;
+        var uvt = base / UVT;
+        var impuesto = 0;
+        if (uvt > 95 && uvt <= 150) impuesto = (uvt - 95) * 0.19;
+        else if (uvt > 150 && uvt <= 360) impuesto = (uvt - 150) * 0.28 + 10;
+        else if (uvt > 360 && uvt <= 640) impuesto = (uvt - 360) * 0.33 + 69;
+        else if (uvt > 640 && uvt <= 945) impuesto = (uvt - 640) * 0.35 + 162;
+        else if (uvt > 945 && uvt <= 2300) impuesto = (uvt - 945) * 0.37 + 268;
+        else if (uvt > 2300) impuesto = (uvt - 2300) * 0.39 + 770;
+        retencion = impuesto * UVT;
       }
 
-      let salario = Number(document.getElementById("salario").value);
-      let comisiones = Number(document.getElementById("comisiones").value);
-      let horasExtra = Number(document.getElementById("horasExtra").value);
-      let riesgo = document.getElementById("riesgo").value;
+      var total = devengado + auxilio - salud - pension - fondo - arl - retencion;
+      var p = function(n) { return "$" + Math.round(n).toLocaleString("es-CO"); }
 
-      let resultado = calcularNomina({
-        salario,
-        comisiones,
-        horasExtra,
-        riesgo
-      });
+      document.getElementById("rDevengado").innerText = p(devengado);
+      document.getElementById("rAuxilio").innerText = p(auxilio);
+      document.getElementById("rIbc").innerText = p(ibc);
+      document.getElementById("rSalud").innerText = p(salud);
+      document.getElementById("rPension").innerText = p(pension);
+      document.getElementById("rFondo").innerText = p(fondo);
+      document.getElementById("rArl").innerText = p(arl);
+      document.getElementById("rRetencion").innerText = p(retencion);
+      document.getElementById("rTotal").innerText = p(total);
 
-      document.getElementById("resultado").innerText =
-        "Total a pagar: $" + resultado.total.toLocaleString();
+      resultado.style.display = "block";
     }
   </script>
-
-  <script src="script.js"></script>
 
 </body>
 </html>
