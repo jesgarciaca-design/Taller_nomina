@@ -1,0 +1,124 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f1f5f9;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+fieldset {
+  background: #fff;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  padding: 0;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+
+legend {
+  width: 100%;
+  background: #1e40af;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  padding: 20px;
+  letter-spacing: -.01em;
+}
+
+fieldset > label,
+fieldset > input,
+fieldset > select,
+fieldset > button,
+fieldset > div,
+fieldset > br {
+  display: block;
+  margin: 0 24px;
+}
+
+fieldset > br { display: none; }
+
+label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 16px !important;
+  margin-bottom: 5px !important;
+}
+
+input, select {
+  width: calc(100% - 48px);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 11px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+input:focus, select:focus {
+  border-color: #1e40af;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(30,64,175,.08);
+}
+
+select { cursor: pointer; }
+
+button {
+  width: calc(100% - 48px);
+  margin-top: 12px !important;
+  margin-bottom: 24px !important;
+  padding: 11px;
+  background: #1e40af;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .15s, transform .15s, box-shadow .15s;
+}
+
+button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30,64,175,.3);
+}
+
+
+#notificacion {
+  display: none;
+  margin-top: 16px !important;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+#notificacion.error {
+  display: block;
+  background: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #b91c1c;
+}
+
+#notificacion.exito {
+  display: block;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #15803d;
+}
